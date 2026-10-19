@@ -15,7 +15,7 @@ export function LikeButton({ id, initialLikes }: { id: string; initialLikes: num
       onClick={() => {
         startTransition(async () => {
           const newLikes = await likeProductAction(id);
-          setLikes(newLikes);
+          if (newLikes !== null) setLikes(newLikes);
         });
       }}
     >
