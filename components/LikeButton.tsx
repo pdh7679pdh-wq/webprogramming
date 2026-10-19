@@ -4,12 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { likeProductAction } from "@/lib/actions";
 
-type LikeButtonProps = {
-  id: string;
-  initialLikes: number;
-};
-
-export function LikeButton({ id, initialLikes }: LikeButtonProps) {
+export function LikeButton({ id, initialLikes }: { id: string; initialLikes: number }) {
   const [likes, setLikes] = useState(initialLikes);
   const [isPending, startTransition] = useTransition();
 
@@ -20,9 +15,7 @@ export function LikeButton({ id, initialLikes }: LikeButtonProps) {
       onClick={() => {
         startTransition(async () => {
           const newLikes = await likeProductAction(id);
-          if (newLikes !== null) {
-            setLikes(newLikes);
-          }
+          setLikes(newLikes);
         });
       }}
     >

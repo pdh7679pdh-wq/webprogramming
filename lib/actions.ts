@@ -1,7 +1,9 @@
 ﻿"use server";
 
 import { revalidatePath } from "next/cache";
-import { addProduct, likeProduct as likeProductInDb } from "@/lib/products";
+import { redirect } from "next/navigation";
+import { likeProduct as likeProductInDb } from "@/lib/products";
+import { createNotice } from "@/lib/notices";
 
 export async function likeProductAction(id: string) {
   const newLikes = await likeProductInDb(id);
@@ -9,9 +11,16 @@ export async function likeProductAction(id: string) {
   return newLikes;
 }
 
-export async function createProductAction(formData: FormData) {
-  const name = formData.get("name") as string;
-  const description = formData.get("description") as string;
-  await addProduct(name, description);
-  revalidatePath("/products");
+export async function createNoticeAction(formData: FormData) {
+  const title = String(formData.get("title") ?? "").trim();
+  const author = String(formData.get("author") ?? "").trim();
+  const content = String(formData.get("content") ?? "").trim();
+
+  if (!title || !author || !content) {
+    throw new Error("제목, 작성자, 내용을 모두 입력해주세요.");
+  }
+
+  const notice = await createNotice({ title, author, content });
+  revalidatePath("/notices");
+  redirect(`/notices/${notice.id}`);
 }

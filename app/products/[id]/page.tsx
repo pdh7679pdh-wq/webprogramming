@@ -1,5 +1,6 @@
-﻿import { getProduct } from "@/lib/products";
-import { notFound } from "next/navigation";
+﻿import { notFound } from "next/navigation";
+import Link from "next/link";
+import { getProduct } from "@/lib/products";
 import { LikeButton } from "@/components/LikeButton";
 
 type Props = { params: Promise<{ id: string }> };
@@ -13,10 +14,12 @@ export default async function ProductDetailPage({ params }: Props) {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">{product.name}</h1>
-      <p className="mt-2 text-gray-600">{product.description}</p>
-      <p className="mt-4">좋아요 {product.likes}개</p>
+    <div className="mx-auto flex max-w-2xl flex-1 flex-col gap-6 px-8 py-16">
+      <Link href="/products" className="text-sm text-zinc-500 hover:underline">
+        ← 목록으로
+      </Link>
+      <h1 className="text-2xl font-semibold text-black dark:text-zinc-50">{product.name}</h1>
+      <p className="text-zinc-600 dark:text-zinc-400">{product.description}</p>
       <LikeButton id={product.id} initialLikes={product.likes} />
     </div>
   );

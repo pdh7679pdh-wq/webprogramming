@@ -5,32 +5,25 @@ export default async function ProductsPage() {
   const products = await getProducts();
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-50 px-4 text-center">
-      <span className="rounded-full bg-gray-200 px-4 py-1 text-sm font-medium text-gray-700">
-        Server Component
-      </span>
-
-      <h1 className="text-3xl font-bold text-gray-800">상품 목록</h1>
-
-      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-sm divide-y">
+    <div className="mx-auto max-w-2xl flex-1 px-8 py-16">
+      <h1 className="mb-8 text-2xl font-semibold text-black dark:text-zinc-50">
+        상품 목록 (Server Component + 비동기 데이터 페칭)
+      </h1>
+      <ul className="flex flex-col gap-4">
         {products.map((p) => (
-          <Link
-            key={p.id}
-            href={`/products/${p.id}`}
-            className="block px-6 py-4 text-left hover:bg-gray-50"
-          >
-            <p className="font-medium text-gray-800">{p.name}</p>
-            <p className="text-sm text-gray-500">좋아요 {p.likes}개</p>
-          </Link>
+          <li key={p.id}>
+            <Link
+              href={`/products/${p.id}`}
+              className="block rounded-lg border border-black/[.08] px-5 py-4 transition-colors hover:bg-black/[.03] dark:border-white/[.145] dark:hover:bg-white/[.05]"
+            >
+              <p className="font-medium text-black dark:text-zinc-50">{p.name}</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                {p.description} · 좋아요 {p.likes}
+              </p>
+            </Link>
+          </li>
         ))}
-      </div>
-
-      <Link
-        href="/"
-        className="text-sm font-medium underline text-gray-900 hover:text-gray-600"
-      >
-        ← 홈으로 돌아가기
-      </Link>
-    </main>
+      </ul>
+    </div>
   );
 }
