@@ -3,15 +3,55 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AuthError } from "next-auth";
-import { likeProduct as likeProductInDb } from "@/lib/products";
+import { getProduct } from "@/lib/products";
+import { addToCart, updateCartQty, removeFromCart } from "@/lib/cart";
 import { createNotice, deleteNotice, getNotice } from "@/lib/notices";
 import { createUser } from "@/lib/users";
 import { signIn, signOut, auth } from "@/auth";
 
-export async function likeProductAction(id: string) {
-  const newLikes = await likeProductInDb(id);
-  revalidatePath(`/products/${id}`);
-  return newLikes;
+export async function addToCartAction(formData: FormData) {
+  const productId = String(formData.get("productId") ?? "");
+  const requestedQty = Math.max(1, Number(formData.get("qty") ?? 1) || 1);
+  if (!productId) {
+    throw new Error("잘못된 상품입니다.");
+  }
+
+  const product = await getProduct(productId);
+  if (!product || product.stock === 0) {
+    throw new Error("담을 수 없는 상품입니다.");
+  }
+
+  const qty = Math.min(requestedQty, product.stock);
+  await addToCart(productId, qty);
+
+  revalidatePath("/", "layout");
+}
+
+export async function updateCartQtyAction(formData: FormData) {
+  const productId = String(formData.get("productId") ?? "");
+  const requestedQty = Number(formData.get("qty") ?? 0);
+  if (!productId) {
+    throw new Error("잘못된 상품입니다.");
+  }
+
+  if (requestedQty <= 0) {
+    await removeFromCart(productId);
+  } else {
+    const product = await getProduct(productId);
+    const qty = product ? Math.min(requestedQty, product.stock) : requestedQty;
+    await updateCartQty(productId, qty);
+  }
+
+  revalidatePath("/", "layout");
+}
+
+export async function removeFromCartAction(formData: FormData) {
+  const productId = String(formData.get("productId") ?? "");
+  if (!productId) {
+    throw new Error("잘못된 상품입니다.");
+  }
+  await removeFromCart(productId);
+  revalidatePath("/", "layout");
 }
 
 export async function createNoticeAction(formData: FormData) {
@@ -82,7 +122,6 @@ export async function registerAction(formData: FormData) {
 
 export async function loginAction(formData: FormData) {
   try {
-    formData.set("redirectTo", "/notices");
     await signIn("credentials", formData);
   } catch (error) {
     if (error instanceof AuthError) {
