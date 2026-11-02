@@ -122,6 +122,7 @@ export async function registerAction(formData: FormData) {
 
 export async function loginAction(formData: FormData) {
   try {
+    formData.set("redirectTo", "/");
     await signIn("credentials", formData);
   } catch (error) {
     if (error instanceof AuthError) {
